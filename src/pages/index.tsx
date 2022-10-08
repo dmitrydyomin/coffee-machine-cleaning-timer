@@ -17,7 +17,10 @@ const HomePage: NextPage = () => {
     if (startedAt !== undefined) {
       setStartedAt(undefined);
       const time = Date.now() - startedAt;
-      setPrevTime((v) => Math.ceil((v + time) / CYCLE_MS) * CYCLE_MS);
+      const fullCycles = Math.floor(time / CYCLE_MS);
+      const left = time - fullCycles * CYCLE_MS;
+      const oneMoreCycle = left > config.time.work * 0.6;
+      setPrevTime((v) => v + (fullCycles + (oneMoreCycle ? 1 : 0)) * CYCLE_MS);
       setSessionTime(0);
     } else {
       setStartedAt(Date.now());
@@ -37,18 +40,38 @@ const HomePage: NextPage = () => {
     };
   }, [prevTime, startedAt]);
 
+  const reset = useCallback(() => {
+    setStartedAt(undefined);
+    setPrevTime(0);
+    setSessionTime(0);
+  }, []);
+
+  const runs = Math.floor((prevTime + sessionTime) / CYCLE_MS);
+
   return (
-    <div>
+    <>
       <Head>
         <title>Coffee machine cleaning timer</title>
       </Head>
+      <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
+        <RunTimer
+          ms={prevTime + sessionTime}
+          style={{ width: '100vmin', height: '100vmin' }}
+        />
+        <div className="fixed top-0 right-0 bottom-0 left-0 flex flex-col items-center justify-center gap-2">
+          <div>{runs}</div>
+          <button onClick={startStop} type="button">
+            {startedAt ? 'Stop' : 'Start'}
+          </button>
+        </div>
 
-      <button onClick={startStop} type="button">
-        {startedAt ? 'Stop' : 'Start'}
-      </button>
-
-      <RunTimer ms={prevTime + sessionTime} />
-    </div>
+        <div className="fixed right-0 bottom-4 left-0 flex flex-col items-center justify-center">
+          <button onClick={reset} type="button">
+            Reset
+          </button>
+        </div>
+      </div>
+    </>
   );
 };
 
