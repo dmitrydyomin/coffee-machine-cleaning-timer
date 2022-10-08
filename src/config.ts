@@ -3,6 +3,7 @@ export const config = {
     work: 5000,
     rest: 10000,
     refreshInterval: 50,
+    cycleCompleteThreshold: 0.6,
   },
   colors: {
     work: 'red',

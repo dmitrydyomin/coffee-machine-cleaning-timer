@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { useCallback, useEffect, useState } from 'react';
 
 import { RunTimer } from '../components/RunTimer';
+import { cyclesCount } from '../components/cyclesCount';
 import { config } from '../config';
 
 const UPDATE_INTERVAL_MS = config.time.refreshInterval;
@@ -17,10 +18,8 @@ const HomePage: NextPage = () => {
     if (startedAt !== undefined) {
       setStartedAt(undefined);
       const time = Date.now() - startedAt;
-      const fullCycles = Math.floor(time / CYCLE_MS);
-      const left = time - fullCycles * CYCLE_MS;
-      const oneMoreCycle = left > config.time.work * 0.6;
-      setPrevTime((v) => v + (fullCycles + (oneMoreCycle ? 1 : 0)) * CYCLE_MS);
+      const cycles = cyclesCount(time);
+      setPrevTime((v) => v + cycles * CYCLE_MS);
       setSessionTime(0);
     } else {
       setStartedAt(Date.now());
@@ -46,7 +45,7 @@ const HomePage: NextPage = () => {
     setSessionTime(0);
   }, []);
 
-  const runs = Math.floor((prevTime + sessionTime) / CYCLE_MS);
+  const cycles = cyclesCount(prevTime + sessionTime);
 
   return (
     <>
@@ -58,15 +57,23 @@ const HomePage: NextPage = () => {
           ms={prevTime + sessionTime}
           style={{ width: '100vmin', height: '100vmin' }}
         />
-        <div className="fixed top-0 right-0 bottom-0 left-0 flex flex-col items-center justify-center gap-2">
-          <div>{runs}</div>
-          <button onClick={startStop} type="button">
-            {startedAt ? 'Stop' : 'Start'}
+        <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
+          <button
+            className="flex flex-col items-center justify-center gap-2 w-56 h-56 active:bg-black/5 rounded-lg uppercase tracking-widest"
+            onMouseDown={startStop}
+            type="button"
+          >
+            <div>{cycles}</div>
+            <div>{startedAt ? 'Stop' : 'Start'}</div>
           </button>
         </div>
 
-        <div className="fixed right-0 bottom-4 left-0 flex flex-col items-center justify-center">
-          <button onClick={reset} type="button">
+        <div className="fixed right-0 bottom-1 left-0 flex flex-col items-center justify-center">
+          <button
+            className="py-3 px-5 active:bg-black/5 rounded-lg uppercase tracking-widest text-xs"
+            onClick={reset}
+            type="button"
+          >
             Reset
           </button>
         </div>
