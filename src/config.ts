@@ -11,6 +11,11 @@ export const config = {
     rest: 'lime',
     restBlank: '#eee',
   },
+  storage: {
+    cyclesThreshold: 10,
+    localStorageKey: 'coffee-days-cycles',
+    recentDates: 5,
+  },
   svg: {
     size: 100,
     offset: 50,

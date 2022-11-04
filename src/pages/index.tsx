@@ -4,6 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { RunTimer } from '../components/RunTimer';
 import { cyclesCount } from '../components/cyclesCount';
+import {
+  useCyclesStorage,
+  useLastCleans,
+} from '../components/useCyclesStorage';
 import { config } from '../config';
 
 const UPDATE_INTERVAL_MS = config.time.refreshInterval;
@@ -47,30 +51,43 @@ const HomePage: NextPage = () => {
 
   const cycles = cyclesCount(prevTime + sessionTime);
 
+  useCyclesStorage(cycles);
+  const lastCleans = useLastCleans();
+
   return (
     <>
       <Head>
         <title>Coffee machine cleaning timer</title>
       </Head>
       <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
+        <div className="absolute left-2 top-2 text-xs opacity-40">
+          {lastCleans.map((c) => (
+            <div key={c.date}>
+              {c.date}: {c.value}
+            </div>
+          ))}
+        </div>
+
         <RunTimer
           ms={prevTime + sessionTime}
           style={{ width: '100vmin', height: '100vmin' }}
         />
         <div className="fixed top-0 right-0 bottom-0 left-0 flex items-center justify-center">
           <button
-            className="flex flex-col items-center justify-center gap-2 w-56 h-56 active:bg-black/5 rounded-lg uppercase tracking-widest"
-            onMouseDown={startStop}
+            className="h-56 w-56 flexflex-col items-center justify-center gap-2 rounded-full uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-black/5"
+            onClick={startStop}
             type="button"
           >
-            <div>{cycles}</div>
-            <div>{startedAt ? 'Stop' : 'Start'}</div>
+            <div className="text-xl">{cycles}</div>
+            <div className="text-xs text-gray-600">
+              {startedAt ? 'Stop' : 'Start'}
+            </div>
           </button>
         </div>
 
         <div className="fixed right-0 bottom-1 left-0 flex flex-col items-center justify-center">
           <button
-            className="py-3 px-5 active:bg-black/5 rounded-lg uppercase tracking-widest text-xs"
+            className="rounded-lg py-3 px-5 text-xs uppercase tracking-widest text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 active:bg-black/5"
             onClick={reset}
             type="button"
           >
